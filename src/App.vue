@@ -1,14 +1,13 @@
 <template>
-  <div :class="{ 'dark': darkMode }" class="app-container">
-    <div class="flex h-screen overflow-hidden">
+  <div :class="{ 'dark': darkMode }">
+    <div class="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
       <!-- Sidebar -->
       <aside 
         :class="[
-          'fixed left-0 top-0 h-full z-40 transition-all duration-300',
+          'fixed left-0 top-0 h-full z-40 transition-all duration-300 border-r',
           sidebarOpen ? 'w-64' : 'w-20',
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         ]"
-        class="border-r"
       >
         <!-- Logo -->
         <div class="flex items-center justify-between p-6 border-b" :class="darkMode ? 'border-gray-700' : 'border-gray-200'">
@@ -20,10 +19,7 @@
           </div>
           <button 
             @click="toggleSidebar"
-            :class="[
-              'p-2 rounded-lg transition-colors',
-              darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-            ]"
+            class="p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <svg v-if="sidebarOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -49,7 +45,7 @@
                   : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
             ]"
           >
-            <component :is="item.icon" class="w-5 h-5" />
+            <span v-html="item.icon"></span>
             <span v-if="sidebarOpen" class="font-medium">{{ item.label }}</span>
           </router-link>
         </nav>
@@ -141,7 +137,7 @@
         </header>
 
         <!-- Page Content -->
-        <main :class="['p-8', darkMode ? 'bg-gray-900' : 'bg-gray-50']" class="min-h-[calc(100vh-73px)] overflow-auto">
+        <main :class="['p-8 overflow-auto', darkMode ? 'bg-gray-900' : 'bg-gray-50']" style="height: calc(100vh - 73px)">
           <router-view v-slot="{ Component }">
             <transition name="fade" mode="out-in">
               <component :is="Component" />
@@ -172,30 +168,30 @@ const toggleSidebar = () => store.toggleSidebar()
 const toggleDarkMode = () => store.toggleDarkMode()
 
 const menuItems = [
-  { path: '/', label: 'Dashboard', icon: 'HomeIcon' },
-  { path: '/analytics', label: 'Analytics', icon: 'ChartIcon' },
-  { path: '/customers', label: 'Customers', icon: 'UsersIcon' },
-  { path: '/products', label: 'Products', icon: 'PackageIcon' },
-  { path: '/settings', label: 'Settings', icon: 'SettingsIcon' }
-]
-</script>
-
-<script>
-import { 
-  Home as HomeIcon,
-  TrendingUp as ChartIcon,
-  Users as UsersIcon,
-  Package as PackageIcon,
-  Settings as SettingsIcon
-} from 'lucide-vue-next'
-
-export default {
-  components: {
-    HomeIcon,
-    ChartIcon,
-    UsersIcon,
-    PackageIcon,
-    SettingsIcon
+  { 
+    path: '/', 
+    label: 'Dashboard', 
+    icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>'
+  },
+  { 
+    path: '/analytics', 
+    label: 'Analytics', 
+    icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>'
+  },
+  { 
+    path: '/customers', 
+    label: 'Customers', 
+    icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>'
+  },
+  { 
+    path: '/products', 
+    label: 'Products', 
+    icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>'
+  },
+  { 
+    path: '/settings', 
+    label: 'Settings', 
+    icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>'
   }
-}
+]
 </script>
