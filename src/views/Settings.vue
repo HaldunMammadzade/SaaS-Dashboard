@@ -1,10 +1,10 @@
 <template>
   <div class="settings">
-    <div class="mb-8">
-      <h1 :class="['text-3xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900']">
+    <div class="mb-6 sm:mb-8">
+      <h1 :class="['text-2xl sm:text-3xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900']">
         Settings
       </h1>
-      <p :class="['text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
+      <p :class="['text-xs sm:text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
         Manage your account settings and preferences
       </p>
     </div>
@@ -40,10 +40,10 @@
       <!-- Settings Content -->
       <div class="lg:col-span-3 space-y-6">
         <!-- Profile Settings -->
-        <div v-if="activeTab === 'profile'" class="space-y-6">
+        <div v-if="activeTab === 'profile'">
           <div 
             :class="[
-              'rounded-xl border shadow-sm p-6',
+              'rounded-xl border shadow-sm p-4 sm:p-6 mb-6',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             ]"
           >
@@ -51,93 +51,176 @@
               Profile Information
             </h3>
 
-            <div class="flex items-center gap-6 mb-6">
-              <img :src="user.avatar" class="w-24 h-24 rounded-full" :alt="user.name" />
-              <div>
-                <button class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold text-sm hover:shadow-lg transition-all">
-                  Change Avatar
-                </button>
-                <p :class="['text-xs mt-2', darkMode ? 'text-gray-400' : 'text-gray-500']">
+            <div class="flex flex-col sm:flex-row items-center gap-6 mb-6">
+              <div class="relative">
+                <img :src="currentUser.avatar" class="w-24 h-24 rounded-full object-cover" :alt="currentUser.name" />
+                <label 
+                  class="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
+                >
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    @change="handleAvatarUpload" 
+                    class="hidden"
+                  />
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                </label>
+              </div>
+              <div class="text-center sm:text-left">
+                <h4 :class="['text-lg font-bold mb-1', darkMode ? 'text-white' : 'text-gray-900']">
+                  Profile Picture
+                </h4>
+                <p :class="['text-sm mb-3', darkMode ? 'text-gray-400' : 'text-gray-600']">
                   JPG, PNG or GIF. Max size 2MB
                 </p>
+                <button 
+                  @click="removeAvatar"
+                  class="text-sm text-red-500 hover:text-red-600 font-medium"
+                >
+                  Remove Picture
+                </button>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label :class="['block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700']">
-                  Full Name
-                </label>
-                <input 
-                  type="text"
-                  :value="user.name"
-                  :class="[
-                    'w-full px-4 py-3 rounded-lg border transition-all',
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'
-                  ]"
-                />
+            <form @submit.prevent="updateProfile" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label :class="['block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700']">
+                    Full Name
+                  </label>
+                  <input 
+                    v-model="profileForm.name"
+                    type="text"
+                    :class="[
+                      'w-full px-4 py-3 rounded-lg border transition-all',
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'
+                    ]"
+                  />
+                </div>
+                <div>
+                  <label :class="['block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700']">
+                    Email Address
+                  </label>
+                  <input 
+                    v-model="profileForm.email"
+                    type="email"
+                    :class="[
+                      'w-full px-4 py-3 rounded-lg border transition-all',
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'
+                    ]"
+                  />
+                </div>
+                <div>
+                  <label :class="['block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700']">
+                    Phone Number
+                  </label>
+                  <input 
+                    v-model="profileForm.phone"
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    :class="[
+                      'w-full px-4 py-3 rounded-lg border transition-all',
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'
+                    ]"
+                  />
+                </div>
+                <div>
+                  <label :class="['block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700']">
+                    Company
+                  </label>
+                  <input 
+                    v-model="profileForm.company"
+                    type="text"
+                    placeholder="Your Company"
+                    :class="[
+                      'w-full px-4 py-3 rounded-lg border transition-all',
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'
+                    ]"
+                  />
+                </div>
+                <div class="md:col-span-2">
+                  <label :class="['block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700']">
+                    Bio
+                  </label>
+                  <textarea 
+                    v-model="profileForm.bio"
+                    rows="3"
+                    placeholder="Tell us about yourself..."
+                    :class="[
+                      'w-full px-4 py-3 rounded-lg border transition-all resize-none',
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'
+                    ]"
+                  ></textarea>
+                </div>
               </div>
-              <div>
-                <label :class="['block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700']">
-                  Email Address
-                </label>
-                <input 
-                  type="email"
-                  :value="user.email"
-                  :class="[
-                    'w-full px-4 py-3 rounded-lg border transition-all',
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'
-                  ]"
-                />
-              </div>
-              <div>
-                <label :class="['block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700']">
-                  Role
-                </label>
-                <input 
-                  type="text"
-                  :value="user.role"
-                  disabled
-                  :class="[
-                    'w-full px-4 py-3 rounded-lg border transition-all opacity-60',
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900'
-                  ]"
-                />
-              </div>
-              <div>
-                <label :class="['block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700']">
-                  Phone Number
-                </label>
-                <input 
-                  type="tel"
-                  placeholder="+1 (555) 000-0000"
-                  :class="[
-                    'w-full px-4 py-3 rounded-lg border transition-all',
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500'
-                  ]"
-                />
-              </div>
-            </div>
 
-            <div class="flex justify-end gap-3 mt-6">
+              <div v-if="profileMessage" :class="[
+                'p-3 rounded-lg',
+                profileMessage.type === 'success' 
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
+                  : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+              ]">
+                <p class="text-sm">{{ profileMessage.text }}</p>
+              </div>
+
+              <div class="flex flex-col sm:flex-row justify-end gap-3">
+                <button 
+                  type="button"
+                  @click="cancelProfileEdit"
+                  :class="[
+                    'px-6 py-3 rounded-lg font-semibold transition-colors',
+                    darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  ]"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Danger Zone -->
+          <div 
+            :class="[
+              'rounded-xl border-2 p-4 sm:p-6',
+              'border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/10'
+            ]"
+          >
+            <h3 class="text-lg font-bold text-red-600 dark:text-red-400 mb-4">
+              Danger Zone
+            </h3>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <p :class="['font-medium mb-1', darkMode ? 'text-white' : 'text-gray-900']">
+                  Delete Account
+                </p>
+                <p :class="['text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
+                  Once you delete your account, there is no going back.
+                </p>
+              </div>
               <button 
-                :class="[
-                  'px-6 py-3 rounded-lg font-semibold transition-colors',
-                  darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                ]"
+                @click="confirmDeleteAccount"
+                class="w-full sm:w-auto px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors"
               >
-                Cancel
-              </button>
-              <button class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
-                Save Changes
+                Delete Account
               </button>
             </div>
           </div>
@@ -147,7 +230,7 @@
         <div v-if="activeTab === 'security'" class="space-y-6">
           <div 
             :class="[
-              'rounded-xl border shadow-sm p-6',
+              'rounded-xl border shadow-sm p-4 sm:p-6',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             ]"
           >
@@ -155,12 +238,13 @@
               Change Password
             </h3>
 
-            <div class="space-y-4">
+            <form @submit.prevent="changePassword" class="space-y-4">
               <div>
                 <label :class="['block text-sm font-medium mb-2', darkMode ? 'text-gray-300' : 'text-gray-700']">
                   Current Password
                 </label>
                 <input 
+                  v-model="passwordForm.currentPassword"
                   type="password"
                   placeholder="Enter current password"
                   :class="[
@@ -176,6 +260,7 @@
                   New Password
                 </label>
                 <input 
+                  v-model="passwordForm.newPassword"
                   type="password"
                   placeholder="Enter new password"
                   :class="[
@@ -191,6 +276,7 @@
                   Confirm New Password
                 </label>
                 <input 
+                  v-model="passwordForm.confirmPassword"
                   type="password"
                   placeholder="Confirm new password"
                   :class="[
@@ -201,16 +287,28 @@
                   ]"
                 />
               </div>
-            </div>
 
-            <button class="mt-6 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
-              Update Password
-            </button>
+              <div v-if="passwordMessage" :class="[
+                'p-3 rounded-lg',
+                passwordMessage.type === 'success' 
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
+                  : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+              ]">
+                <p class="text-sm">{{ passwordMessage.text }}</p>
+              </div>
+
+              <button 
+                type="submit"
+                class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+              >
+                Update Password
+              </button>
+            </form>
           </div>
 
           <div 
             :class="[
-              'rounded-xl border shadow-sm p-6',
+              'rounded-xl border shadow-sm p-4 sm:p-6',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             ]"
           >
@@ -218,7 +316,7 @@
               Two-Factor Authentication
             </h3>
             
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <p :class="['font-medium mb-1', darkMode ? 'text-white' : 'text-gray-900']">
                   Enable 2FA
@@ -228,7 +326,7 @@
                 </p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" class="sr-only peer">
+                <input type="checkbox" v-model="twoFactorEnabled" class="sr-only peer">
                 <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-purple-600"></div>
               </label>
             </div>
@@ -236,10 +334,10 @@
         </div>
 
         <!-- Notifications Settings -->
-        <div v-if="activeTab === 'notifications'" class="space-y-6">
+        <div v-if="activeTab === 'notifications'">
           <div 
             :class="[
-              'rounded-xl border shadow-sm p-6',
+              'rounded-xl border shadow-sm p-4 sm:p-6',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             ]"
           >
@@ -251,7 +349,7 @@
               <div 
                 v-for="notif in notificationSettings" 
                 :key="notif.id"
-                class="flex items-center justify-between py-4 border-b"
+                class="flex items-center justify-between py-4 border-b last:border-b-0"
                 :class="darkMode ? 'border-gray-700' : 'border-gray-100'"
               >
                 <div class="flex items-center gap-4">
@@ -273,7 +371,7 @@
                   </div>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" :checked="notif.enabled" class="sr-only peer">
+                  <input type="checkbox" v-model="notif.enabled" class="sr-only peer">
                   <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-purple-600"></div>
                 </label>
               </div>
@@ -282,10 +380,10 @@
         </div>
 
         <!-- Appearance Settings -->
-        <div v-if="activeTab === 'appearance'" class="space-y-6">
+        <div v-if="activeTab === 'appearance'">
           <div 
             :class="[
-              'rounded-xl border shadow-sm p-6',
+              'rounded-xl border shadow-sm p-4 sm:p-6',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             ]"
           >
@@ -293,9 +391,9 @@
               Theme Settings
             </h3>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div 
-                @click="toggleDarkMode"
+                @click="!darkMode && toggleDarkMode()"
                 :class="[
                   'cursor-pointer rounded-xl border-2 p-6 transition-all',
                   !darkMode 
@@ -318,7 +416,7 @@
               </div>
 
               <div 
-                @click="toggleDarkMode"
+                @click="darkMode && toggleDarkMode()"
                 :class="[
                   'cursor-pointer rounded-xl border-2 p-6 transition-all',
                   darkMode 
@@ -344,10 +442,10 @@
         </div>
 
         <!-- Billing Settings -->
-        <div v-if="activeTab === 'billing'" class="space-y-6">
+        <div v-if="activeTab === 'billing'">
           <div 
             :class="[
-              'rounded-xl border shadow-sm p-6',
+              'rounded-xl border shadow-sm p-4 sm:p-6',
               darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             ]"
           >
@@ -355,12 +453,12 @@
               Current Plan
             </h3>
 
-            <div class="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white mb-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between p-6 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white mb-6">
               <div>
                 <h4 class="text-2xl font-bold mb-2">Enterprise Plan</h4>
                 <p class="text-blue-100">Billed annually</p>
               </div>
-              <div class="text-right">
+              <div class="text-right mt-4 sm:mt-0">
                 <p class="text-4xl font-bold">$299</p>
                 <p class="text-blue-100">per month</p>
               </div>
@@ -368,15 +466,15 @@
 
             <div class="space-y-3 mb-6">
               <div class="flex items-center gap-3">
-                <component :is="CheckIcon" class="w-5 h-5 text-green-500" />
+                <component :is="CheckIcon" class="w-5 h-5 text-green-500 flex-shrink-0" />
                 <span :class="darkMode ? 'text-gray-300' : 'text-gray-700'">Unlimited users</span>
               </div>
               <div class="flex items-center gap-3">
-                <component :is="CheckIcon" class="w-5 h-5 text-green-500" />
+                <component :is="CheckIcon" class="w-5 h-5 text-green-500 flex-shrink-0" />
                 <span :class="darkMode ? 'text-gray-300' : 'text-gray-700'">Advanced analytics</span>
               </div>
               <div class="flex items-center gap-3">
-                <component :is="CheckIcon" class="w-5 h-5 text-green-500" />
+                <component :is="CheckIcon" class="w-5 h-5 text-green-500 flex-shrink-0" />
                 <span :class="darkMode ? 'text-gray-300' : 'text-gray-700'">Priority support</span>
               </div>
             </div>
@@ -392,8 +490,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAppStore } from '../stores/app'
+import { useRouter } from 'vue-router'
 import {
   User as UserIcon,
   Shield as ShieldIcon,
@@ -408,11 +507,30 @@ import {
 } from 'lucide-vue-next'
 
 const store = useAppStore()
+const router = useRouter()
+
 const darkMode = computed(() => store.darkMode)
-const user = computed(() => store.user)
+const currentUser = computed(() => store.user)
 const toggleDarkMode = () => store.toggleDarkMode()
 
 const activeTab = ref('profile')
+const twoFactorEnabled = ref(false)
+const profileMessage = ref(null)
+const passwordMessage = ref(null)
+
+const profileForm = ref({
+  name: '',
+  email: '',
+  phone: '',
+  company: '',
+  bio: ''
+})
+
+const passwordForm = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
 
 const settingsTabs = [
   { id: 'profile', label: 'Profile', icon: UserIcon },
@@ -422,7 +540,7 @@ const settingsTabs = [
   { id: 'billing', label: 'Billing', icon: CreditCardIcon }
 ]
 
-const notificationSettings = [
+const notificationSettings = ref([
   {
     id: 1,
     title: 'Email Notifications',
@@ -447,5 +565,94 @@ const notificationSettings = [
     iconBg: 'bg-gradient-to-br from-pink-500 to-pink-600',
     enabled: false
   }
-]
+])
+
+onMounted(() => {
+  if (currentUser.value) {
+    profileForm.value = {
+      name: currentUser.value.name,
+      email: currentUser.value.email,
+      phone: currentUser.value.phone || '',
+      company: currentUser.value.company || '',
+      bio: currentUser.value.bio || ''
+    }
+  }
+})
+
+const handleAvatarUpload = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    if (file.size > 2 * 1024 * 1024) {
+      profileMessage.value = { type: 'error', text: 'File size must be less than 2MB' }
+      return
+    }
+    
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      currentUser.value.avatar = e.target.result
+      profileMessage.value = { type: 'success', text: 'Avatar uploaded successfully' }
+      setTimeout(() => profileMessage.value = null, 3000)
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const removeAvatar = () => {
+  if (currentUser.value) {
+    currentUser.value.avatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.value.name}`
+    profileMessage.value = { type: 'success', text: 'Avatar removed successfully' }
+    setTimeout(() => profileMessage.value = null, 3000)
+  }
+}
+
+const updateProfile = () => {
+  Object.assign(currentUser.value, profileForm.value)
+  profileMessage.value = { type: 'success', text: 'Profile updated successfully' }
+  setTimeout(() => profileMessage.value = null, 3000)
+}
+
+const cancelProfileEdit = () => {
+  if (authUser.value) {
+    profileForm.value = {
+      name: authUser.value.name,
+      email: authUser.value.email,
+      phone: authUser.value.phone || '',
+      company: authUser.value.company || '',
+      bio: authUser.value.bio || ''
+    }
+  }
+  profileMessage.value = null
+}
+
+const changePassword = () => {
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    passwordMessage.value = { type: 'error', text: 'Passwords do not match' }
+    return
+  }
+  
+  if (passwordForm.value.newPassword.length < 6) {
+    passwordMessage.value = { type: 'error', text: 'Password must be at least 6 characters' }
+    return
+  }
+
+  const result = authStore.changePassword(passwordForm.value)
+  if (result.success) {
+    passwordMessage.value = { type: 'success', text: result.message }
+    passwordForm.value = {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    }
+    setTimeout(() => passwordMessage.value = null, 3000)
+  } else {
+    passwordMessage.value = { type: 'error', text: result.message }
+  }
+}
+
+const confirmDeleteAccount = () => {
+  if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+    authStore.logout()
+    router.push('/login')
+  }
+}
 </script>
