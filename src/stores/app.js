@@ -2,9 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export const useAppStore = defineStore('app', () => {
-  const sidebarOpen = ref(true)
+  const sidebarOpen = ref(window.innerWidth >= 1024)
   const darkMode = ref(false)
-  const notifications = ref(5)
   const searchQuery = ref('')
   
   const user = ref({
@@ -13,6 +12,14 @@ export const useAppStore = defineStore('app', () => {
     role: 'Administrator',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John'
   })
+
+  const notificationsList = ref([
+    { id: 1, title: 'New Customer', message: 'Sarah Johnson just signed up', time: '2 min ago', type: 'success' },
+    { id: 2, title: 'Payment Received', message: '$2,400 from Acme Corp', time: '15 min ago', type: 'success' },
+    { id: 3, title: 'Server Alert', message: 'High CPU usage detected', time: '1 hour ago', type: 'warning' },
+    { id: 4, title: 'New Message', message: 'You have 3 unread messages', time: '2 hours ago', type: 'info' },
+    { id: 5, title: 'Subscription Expiring', message: 'Enterprise plan expires in 7 days', time: '3 hours ago', type: 'warning' }
+  ])
 
   const stats = ref({
     totalRevenue: 54280,
@@ -75,12 +82,7 @@ export const useAppStore = defineStore('app', () => {
     { id: 4, name: 'Premium Plan', price: 199, sales: 320, revenue: 63680, status: 'active', description: 'Most popular choice' }
   ])
 
-  const recentActivity = ref([
-    { id: 1, type: 'user', action: 'New user registered', user: 'Sarah Johnson', time: '2 minutes ago' },
-    { id: 2, type: 'payment', action: 'Payment received', user: 'Acme Corp', time: '15 minutes ago' },
-    { id: 3, type: 'upgrade', action: 'Plan upgraded to Enterprise', user: 'TechStart Inc', time: '1 hour ago' },
-    { id: 4, type: 'support', action: 'New support ticket', user: 'Global Systems', time: '2 hours ago' }
-  ])
+  const notifications = computed(() => notificationsList.value.length)
 
   const toggleSidebar = () => {
     sidebarOpen.value = !sidebarOpen.value
@@ -95,8 +97,80 @@ export const useAppStore = defineStore('app', () => {
     }
   }
 
-  const clearNotifications = () => {
-    notifications.value = 0
+  const clearAllNotifications = () => {
+    notificationsList.value = []
+  }
+
+  const removeNotification = (id) => {
+    notificationsList.value = notificationsList.value.filter(n => n.id !== id)
+  }
+
+  const addCustomer = (customerData) => {
+    const newCustomer = {
+      id: customers.value.length + 1,
+      name: customerData.name,
+      email: customerData.email,
+      plan: customerData.plan,
+      revenue: 0,
+      status: customerData.status,
+      joined: new Date().toISOString().split('T')[0]
+    }
+    customers.value.unshift(newCustomer)
+    
+    notificationsList.value.unshift({
+      id: Date.now(),
+      title: 'Customer Added',
+      message: `${customerData.name} has been added successfully`,
+      time: 'Just now',
+      type: 'success'
+    })
+  }
+
+  const deleteCustomer = (id) => {
+    const customer = customers.value.find(c => c.id === id)
+    customers.value = customers.value.filter(c => c.id !== id)
+    
+    notificationsList.value.unshift({
+      id: Date.now(),
+      title: 'Customer Deleted',
+      message: `${customer.name} has been removed`,
+      time: 'Just now',
+      type: 'info'
+    })
+  }
+
+  const addProduct = (productData) => {
+    const newProduct = {
+      id: products.value.length + 1,
+      name: productData.name,
+      price: productData.price,
+      sales: 0,
+      revenue: 0,
+      status: productData.status,
+      description: productData.description
+    }
+    products.value.unshift(newProduct)
+    
+    notificationsList.value.unshift({
+      id: Date.now(),
+      title: 'Product Added',
+      message: `${productData.name} has been created`,
+      time: 'Just now',
+      type: 'success'
+    })
+  }
+
+  const deleteProduct = (id) => {
+    const product = products.value.find(p => p.id === id)
+    products.value = products.value.filter(p => p.id !== id)
+    
+    notificationsList.value.unshift({
+      id: Date.now(),
+      title: 'Product Deleted',
+      message: `${product.name} has been removed`,
+      time: 'Just now',
+      type: 'info'
+    })
   }
 
   const totalRevenue = computed(() => {
@@ -113,6 +187,7 @@ export const useAppStore = defineStore('app', () => {
     sidebarOpen,
     darkMode,
     notifications,
+    notificationsList,
     searchQuery,
     user,
     stats,
@@ -122,10 +197,14 @@ export const useAppStore = defineStore('app', () => {
     transactions,
     customers,
     products,
-    recentActivity,
     toggleSidebar,
     toggleDarkMode,
-    clearNotifications,
+    clearAllNotifications,
+    removeNotification,
+    addCustomer,
+    deleteCustomer,
+    addProduct,
+    deleteProduct,
     totalRevenue,
     activeCustomersCount
   }

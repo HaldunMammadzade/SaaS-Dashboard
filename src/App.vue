@@ -1,17 +1,24 @@
 <template>
   <div :class="{ 'dark': darkMode }">
     <div class="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
+      <!-- Mobile Overlay -->
+      <div 
+        v-if="sidebarOpen && isMobile"
+        class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+        @click="toggleSidebar"
+      ></div>
+
       <!-- Sidebar -->
       <aside 
         :class="[
           'fixed left-0 top-0 h-full z-40 transition-all duration-300 border-r',
-          sidebarOpen ? 'w-64' : 'w-20',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+          isMobile ? 'w-64' : (sidebarOpen ? 'w-64' : 'w-20'),
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         ]"
       >
-        <!-- Logo -->
         <div class="flex items-center justify-between p-6 border-b" :class="darkMode ? 'border-gray-700' : 'border-gray-200'">
-          <div v-if="sidebarOpen" class="flex items-center gap-3">
+          <div v-if="sidebarOpen || isMobile" class="flex items-center gap-3">
             <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <span class="text-white font-bold text-lg">S</span>
             </div>
@@ -21,21 +28,18 @@
             @click="toggleSidebar"
             class="p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <svg v-if="sidebarOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
           </button>
         </div>
 
-        <!-- Navigation -->
-        <nav class="p-4">
+        <nav class="p-4 overflow-y-auto" style="height: calc(100vh - 160px)">
           <router-link 
             v-for="item in menuItems" 
             :key="item.path"
             :to="item.path"
+            @click="isMobile && toggleSidebar()"
             :class="[
               'flex items-center gap-3 px-4 py-3 mb-2 rounded-lg transition-all duration-200',
               $route.path === item.path 
@@ -46,20 +50,19 @@
             ]"
           >
             <span v-html="item.icon"></span>
-            <span v-if="sidebarOpen" class="font-medium">{{ item.label }}</span>
+            <span v-if="sidebarOpen || isMobile" class="font-medium">{{ item.label }}</span>
           </router-link>
         </nav>
 
-        <!-- User Profile -->
         <div 
           class="absolute bottom-0 left-0 right-0 p-4 border-t"
           :class="darkMode ? 'border-gray-700' : 'border-gray-200'"
         >
           <div :class="['flex items-center gap-3 p-3 rounded-lg', darkMode ? 'bg-gray-700' : 'bg-gray-50']">
             <img :src="user.avatar" class="w-10 h-10 rounded-full" :alt="user.name" />
-            <div v-if="sidebarOpen" class="flex-1">
-              <p :class="['text-sm font-semibold', darkMode ? 'text-white' : 'text-gray-900']">{{ user.name }}</p>
-              <p :class="['text-xs', darkMode ? 'text-gray-400' : 'text-gray-500']">{{ user.role }}</p>
+            <div v-if="sidebarOpen || isMobile" class="flex-1 min-w-0">
+              <p :class="['text-sm font-semibold truncate', darkMode ? 'text-white' : 'text-gray-900']">{{ user.name }}</p>
+              <p :class="['text-xs truncate', darkMode ? 'text-gray-400' : 'text-gray-500']">{{ user.role }}</p>
             </div>
           </div>
         </div>
@@ -69,7 +72,7 @@
       <div 
         :class="[
           'flex-1 transition-all duration-300',
-          sidebarOpen ? 'ml-64' : 'ml-20'
+          isMobile ? 'ml-0' : (sidebarOpen ? 'ml-64' : 'ml-20')
         ]"
       >
         <!-- Header -->
@@ -79,9 +82,20 @@
             darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
           ]"
         >
-          <div class="flex items-center justify-between px-8 py-4">
+          <div class="flex items-center justify-between px-4 lg:px-8 py-4">
+            <!-- Mobile Menu Button -->
+            <button 
+              v-if="isMobile"
+              @click="toggleSidebar"
+              class="p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              </svg>
+            </button>
+
             <!-- Search -->
-            <div class="flex-1 max-w-xl">
+            <div class="flex-1 max-w-xl mx-4">
               <div class="relative">
                 <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -89,7 +103,7 @@
                 <input 
                   type="text"
                   v-model="searchQuery"
-                  placeholder="Search anything..."
+                  placeholder="Search..."
                   :class="[
                     'w-full pl-10 pr-4 py-2 rounded-lg border transition-all',
                     darkMode 
@@ -101,8 +115,7 @@
             </div>
 
             <!-- Right Actions -->
-            <div class="flex items-center gap-4 ml-6">
-              <!-- Dark Mode Toggle -->
+            <div class="flex items-center gap-2 lg:gap-4">
               <button 
                 @click="toggleDarkMode"
                 :class="[
@@ -118,26 +131,13 @@
                 </svg>
               </button>
 
-              <!-- Notifications -->
-              <button 
-                :class="[
-                  'relative p-2 rounded-lg transition-colors',
-                  darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'
-                ]"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                </svg>
-                <span v-if="notifications > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {{ notifications }}
-                </span>
-              </button>
+              <NotificationDropdown />
             </div>
           </div>
         </header>
 
         <!-- Page Content -->
-        <main :class="['p-8 overflow-auto', darkMode ? 'bg-gray-900' : 'bg-gray-50']" style="height: calc(100vh - 73px)">
+        <main :class="['p-4 lg:p-8 overflow-auto', darkMode ? 'bg-gray-900' : 'bg-gray-50']" style="height: calc(100vh - 73px)">
           <router-view v-slot="{ Component }">
             <transition name="fade" mode="out-in">
               <component :is="Component" />
@@ -150,14 +150,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useAppStore } from './stores/app'
+import NotificationDropdown from './components/NotificationDropdown.vue'
 
 const store = useAppStore()
+const isMobile = ref(window.innerWidth < 1024)
 
 const sidebarOpen = computed(() => store.sidebarOpen)
 const darkMode = computed(() => store.darkMode)
-const notifications = computed(() => store.notifications)
 const searchQuery = computed({
   get: () => store.searchQuery,
   set: (value) => store.searchQuery = value
@@ -166,6 +167,21 @@ const user = computed(() => store.user)
 
 const toggleSidebar = () => store.toggleSidebar()
 const toggleDarkMode = () => store.toggleDarkMode()
+
+const handleResize = () => {
+  isMobile.value = window.innerWidth < 1024
+  if (!isMobile.value && !store.sidebarOpen) {
+    store.toggleSidebar()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 const menuItems = [
   { 
