@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { customerService } from '../services/customerService'
+import { productService } from '../services/productService'
 
 export const useAppStore = defineStore('app', () => {
   const sidebarOpen = ref(window.innerWidth >= 1024)
@@ -66,21 +68,10 @@ export const useAppStore = defineStore('app', () => {
     { id: 7, customer: 'Smart Solutions', amount: 1200, status: 'completed', date: '2025-10-04', type: 'subscription' }
   ])
 
-  const customers = ref([
-    { id: 1, name: 'Acme Corp', email: 'contact@acme.com', plan: 'Enterprise', revenue: 12400, status: 'active', joined: '2024-01-15' },
-    { id: 2, name: 'TechStart Inc', email: 'hello@techstart.com', plan: 'Pro', revenue: 9800, status: 'active', joined: '2024-02-20' },
-    { id: 3, name: 'Global Systems', email: 'info@global.com', plan: 'Pro', revenue: 8200, status: 'active', joined: '2024-03-10' },
-    { id: 4, name: 'Innovation Labs', email: 'team@innovation.com', plan: 'Basic', revenue: 7600, status: 'inactive', joined: '2024-04-05' },
-    { id: 5, name: 'Digital Wave', email: 'support@digitalwave.com', plan: 'Enterprise', revenue: 15200, status: 'active', joined: '2024-01-08' },
-    { id: 6, name: 'Future Tech', email: 'info@futuretech.com', plan: 'Pro', revenue: 10500, status: 'active', joined: '2024-05-12' }
-  ])
-
-  const products = ref([
-    { id: 1, name: 'Basic Plan', price: 29, sales: 780, revenue: 22620, status: 'active', description: 'Perfect for startups' },
-    { id: 2, name: 'Pro Plan', price: 99, sales: 450, revenue: 44550, status: 'active', description: 'For growing businesses' },
-    { id: 3, name: 'Enterprise Plan', price: 299, sales: 180, revenue: 53820, status: 'active', description: 'Advanced features' },
-    { id: 4, name: 'Premium Plan', price: 199, sales: 320, revenue: 63680, status: 'active', description: 'Most popular choice' }
-  ])
+  const customers = ref([])
+  const products = ref([])
+  const customersLoading = ref(false)
+  const productsLoading = ref(false)
 
   const notifications = computed(() => notificationsList.value.length)
 
@@ -105,72 +96,100 @@ export const useAppStore = defineStore('app', () => {
     notificationsList.value = notificationsList.value.filter(n => n.id !== id)
   }
 
-  const addCustomer = (customerData) => {
-    const newCustomer = {
-      id: customers.value.length + 1,
-      name: customerData.name,
-      email: customerData.email,
-      plan: customerData.plan,
-      revenue: 0,
-      status: customerData.status,
-      joined: new Date().toISOString().split('T')[0]
+  // Customers API
+  const fetchCustomers = async () => {
+    customersLoading.value = true
+    try {
+      const response = await customerService.getCustomers()
+      customers.value = response.data
+    } catch (error) {
+      console.error('Error fetching customers:', error)
+    } finally {
+      customersLoading.value = false
     }
-    customers.value.unshift(newCustomer)
-    
-    notificationsList.value.unshift({
-      id: Date.now(),
-      title: 'Customer Added',
-      message: `${customerData.name} has been added successfully`,
-      time: 'Just now',
-      type: 'success'
-    })
   }
 
-  const deleteCustomer = (id) => {
-    const customer = customers.value.find(c => c.id === id)
-    customers.value = customers.value.filter(c => c.id !== id)
-    
-    notificationsList.value.unshift({
-      id: Date.now(),
-      title: 'Customer Deleted',
-      message: `${customer.name} has been removed`,
-      time: 'Just now',
-      type: 'info'
-    })
-  }
-
-  const addProduct = (productData) => {
-    const newProduct = {
-      id: products.value.length + 1,
-      name: productData.name,
-      price: productData.price,
-      sales: 0,
-      revenue: 0,
-      status: productData.status,
-      description: productData.description
+  const addCustomer = async (customerData) => {
+    try {
+      const response = await customerService.createCustomer(customerData)
+      customers.value.unshift(response.data)
+      
+      notificationsList.value.unshift({
+        id: Date.now(),
+        title: 'Customer Added',
+        message: `${customerData.name} has been added successfully`,
+        time: 'Just now',
+        type: 'success'
+      })
+    } catch (error) {
+      console.error('Error adding customer:', error)
     }
-    products.value.unshift(newProduct)
-    
-    notificationsList.value.unshift({
-      id: Date.now(),
-      title: 'Product Added',
-      message: `${productData.name} has been created`,
-      time: 'Just now',
-      type: 'success'
-    })
   }
 
-  const deleteProduct = (id) => {
-    const product = products.value.find(p => p.id === id)
-    products.value = products.value.filter(p => p.id !== id)
-    
-    notificationsList.value.unshift({
-      id: Date.now(),
-      title: 'Product Deleted',
-      message: `${product.name} has been removed`,
-      time: 'Just now',
-      type: 'info'
-    })
+  const deleteCustomer = async (id) => {
+    try {
+      await customerService.deleteCustomer(id)
+      const customer = customers.value.find(c => c._id === id)
+      customers.value = customers.value.filter(c => c._id !== id)
+      
+      notificationsList.value.unshift({
+        id: Date.now(),
+        title: 'Customer Deleted',
+        message: `${customer.name} has been removed`,
+        time: 'Just now',
+        type: 'info'
+      })
+    } catch (error) {
+      console.error('Error deleting customer:', error)
+    }
+  }
+
+  // Products API
+  const fetchProducts = async () => {
+    productsLoading.value = true
+    try {
+      const response = await productService.getProducts()
+      products.value = response.data
+    } catch (error) {
+      console.error('Error fetching products:', error)
+    } finally {
+      productsLoading.value = false
+    }
+  }
+
+  const addProduct = async (productData) => {
+    try {
+      const response = await productService.createProduct(productData)
+      products.value.unshift(response.data)
+      
+      notificationsList.value.unshift({
+        id: Date.now(),
+        title: 'Product Added',
+        message: `${productData.name} has been created`,
+        time: 'Just now',
+        type: 'success'
+      })
+    } catch (error) {
+      console.error('Error adding product:', error)
+    }
+  }
+
+  const deleteProduct = async (id) => {
+    try {
+      await productService.deleteProduct(id)
+      const product = products.value.find(p => p._id === id)
+      products.value = products.value.filter(p => p._id !== id)
+      
+      notificationsList.value.unshift({
+        id: Date.now(),
+        title: 'Product Deleted',
+        message: `${product.name} has been removed`,
+        time: 'Just now',
+        type: 'info'
+      })
+    } catch (error) {
+      console.error('Error deleting product:', error)
+    }
   }
 
   const totalRevenue = computed(() => {
@@ -197,12 +216,16 @@ export const useAppStore = defineStore('app', () => {
     transactions,
     customers,
     products,
+    customersLoading,
+    productsLoading,
     toggleSidebar,
     toggleDarkMode,
     clearAllNotifications,
     removeNotification,
+    fetchCustomers,
     addCustomer,
     deleteCustomer,
+    fetchProducts,
     addProduct,
     deleteProduct,
     totalRevenue,
