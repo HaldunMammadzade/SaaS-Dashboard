@@ -1,16 +1,16 @@
 <template>
   <div class="dashboard">
-    <div class="mb-8">
-      <h1 :class="['text-3xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900']">
+    <div class="mb-6 sm:mb-8">
+      <h1 :class="['text-2xl sm:text-3xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900']">
         Dashboard Overview
       </h1>
-      <p :class="['text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
+      <p :class="['text-xs sm:text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
         Welcome back, {{ user.name }}! Here's what's happening with your business today.
       </p>
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
       <StatCard
         title="Total Revenue"
         :value="stats.totalRevenue"
@@ -47,12 +47,12 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
       <!-- Revenue Chart -->
       <ChartCard
         title="Revenue Overview"
         subtitle="Monthly revenue, expenses and profit"
-        height="350px"
+        :height="isMobile ? '250px' : '350px'"
         :show-legend="true"
         :legend-items="[
           { label: 'Revenue', color: '#3b82f6' },
@@ -60,7 +60,7 @@
           { label: 'Profit', color: '#10b981' }
         ]"
       >
-        <div class="w-full h-full flex items-center justify-center">
+        <div class="w-full h-full flex items-center justify-center p-2 sm:p-4">
           <svg class="w-full h-full" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet">
             <defs>
               <linearGradient id="revenueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -122,14 +122,14 @@
       <ChartCard
         title="User Growth"
         subtitle="New users over the last 6 weeks"
-        height="350px"
+        :height="isMobile ? '250px' : '350px'"
       >
-        <div class="w-full h-full flex items-center justify-end gap-2 px-4">
+        <div class="w-full h-full flex items-center justify-end gap-1 sm:gap-2 px-2 sm:px-4">
           <div 
             v-for="(week, idx) in userGrowth" 
             :key="idx"
             class="flex flex-col items-center justify-end flex-1"
-            style="height: 300px"
+            :style="{ height: isMobile ? '200px' : '300px' }"
           >
             <div 
               class="w-full rounded-t-lg transition-all duration-500 hover:opacity-80 cursor-pointer relative group"
@@ -145,27 +145,27 @@
               </div>
             </div>
             <span :class="['text-xs mt-2 font-medium', darkMode ? 'text-gray-400' : 'text-gray-600']">
-              {{ week.date }}
+              {{ week.date.replace('Week ', 'W') }}
             </span>
           </div>
         </div>
       </ChartCard>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
       <!-- Subscription Distribution -->
       <div 
         :class="[
-          'rounded-xl p-6 border shadow-sm',
+          'rounded-xl p-4 sm:p-6 border shadow-sm',
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         ]"
       >
-        <h3 :class="['text-lg font-bold mb-6', darkMode ? 'text-white' : 'text-gray-900']">
+        <h3 :class="['text-base sm:text-lg font-bold mb-4 sm:mb-6', darkMode ? 'text-white' : 'text-gray-900']">
           Subscription Plans
         </h3>
         
-        <div class="flex items-center justify-center mb-6">
-          <svg width="200" height="200" viewBox="0 0 200 200">
+        <div class="flex items-center justify-center mb-4 sm:mb-6">
+          <svg :width="isMobile ? '150' : '200'" :height="isMobile ? '150' : '200'" viewBox="0 0 200 200">
             <circle 
               v-for="(plan, idx) in subscriptions" 
               :key="idx"
@@ -185,7 +185,7 @@
               y="100" 
               text-anchor="middle" 
               dy=".3em"
-              :class="['text-2xl font-bold', darkMode ? 'fill-white' : 'fill-gray-900']"
+              :class="['text-xl sm:text-2xl font-bold', darkMode ? 'fill-white' : 'fill-gray-900']"
             >
               {{ subscriptions.reduce((sum, s) => sum + s.value, 0) }}
             </text>
@@ -208,15 +208,15 @@
           >
             <div class="flex items-center gap-2">
               <div 
-                class="w-3 h-3 rounded-full"
+                class="w-3 h-3 rounded-full flex-shrink-0"
                 :style="{ backgroundColor: plan.color }"
               ></div>
-              <span :class="['text-sm font-medium', darkMode ? 'text-gray-300' : 'text-gray-700']">
+              <span :class="['text-xs sm:text-sm font-medium', darkMode ? 'text-gray-300' : 'text-gray-700']">
                 {{ plan.name }}
               </span>
             </div>
             <div class="text-right">
-              <span :class="['text-sm font-bold', darkMode ? 'text-white' : 'text-gray-900']">
+              <span :class="['text-xs sm:text-sm font-bold', darkMode ? 'text-white' : 'text-gray-900']">
                 {{ plan.value }}
               </span>
               <span :class="['text-xs ml-2', darkMode ? 'text-gray-500' : 'text-gray-400']">
@@ -230,17 +230,17 @@
       <!-- Recent Transactions -->
       <div 
         :class="[
-          'lg:col-span-2 rounded-xl p-6 border shadow-sm',
+          'lg:col-span-2 rounded-xl p-4 sm:p-6 border shadow-sm',
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         ]"
       >
-        <div class="flex items-center justify-between mb-6">
-          <h3 :class="['text-lg font-bold', darkMode ? 'text-white' : 'text-gray-900']">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+          <h3 :class="['text-base sm:text-lg font-bold', darkMode ? 'text-white' : 'text-gray-900']">
             Recent Transactions
           </h3>
           <button 
             :class="[
-              'text-sm font-medium px-4 py-2 rounded-lg transition-colors',
+              'text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-lg transition-colors',
               darkMode ? 'text-blue-400 hover:bg-gray-700' : 'text-blue-600 hover:bg-blue-50'
             ]"
           >
@@ -248,19 +248,19 @@
           </button>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-3 sm:space-y-4">
           <div 
             v-for="transaction in transactions.slice(0, 5)" 
             :key="transaction.id"
             :class="[
-              'flex items-center justify-between p-4 rounded-lg transition-colors',
+              'flex items-center justify-between p-3 sm:p-4 rounded-lg transition-colors',
               darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
             ]"
           >
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3 sm:gap-4 min-w-0">
               <div 
                 :class="[
-                  'w-10 h-10 rounded-lg flex items-center justify-center',
+                  'w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0',
                   transaction.status === 'completed' ? 'bg-green-100 dark:bg-green-900/30' :
                   transaction.status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
                   'bg-red-100 dark:bg-red-900/30'
@@ -270,15 +270,15 @@
                   :is="transaction.status === 'completed' ? CheckCircleIcon : 
                        transaction.status === 'pending' ? ClockIcon : XCircleIcon"
                   :class="[
-                    'w-5 h-5',
+                    'w-4 h-4 sm:w-5 sm:h-5',
                     transaction.status === 'completed' ? 'text-green-600 dark:text-green-400' :
                     transaction.status === 'pending' ? 'text-yellow-600 dark:text-yellow-400' :
                     'text-red-600 dark:text-red-400'
                   ]"
                 />
               </div>
-              <div>
-                <p :class="['font-semibold text-sm', darkMode ? 'text-white' : 'text-gray-900']">
+              <div class="min-w-0">
+                <p :class="['font-semibold text-xs sm:text-sm truncate', darkMode ? 'text-white' : 'text-gray-900']">
                   {{ transaction.customer }}
                 </p>
                 <p :class="['text-xs', darkMode ? 'text-gray-500' : 'text-gray-400']">
@@ -286,13 +286,13 @@
                 </p>
               </div>
             </div>
-            <div class="text-right">
-              <p :class="['font-bold', darkMode ? 'text-white' : 'text-gray-900']">
+            <div class="text-right ml-2 flex-shrink-0">
+              <p :class="['font-bold text-xs sm:text-base', darkMode ? 'text-white' : 'text-gray-900']">
                 ${{ transaction.amount.toLocaleString() }}
               </p>
               <span 
                 :class="[
-                  'text-xs px-2 py-1 rounded-full font-medium',
+                  'text-xs px-2 py-0.5 rounded-full font-medium inline-block mt-1',
                   transaction.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
                   transaction.status === 'pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
                   'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
@@ -309,7 +309,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useAppStore } from '../stores/app'
 import StatCard from '../components/StatCard.vue'
 import ChartCard from '../components/ChartCard.vue'
@@ -331,6 +331,20 @@ const revenueData = computed(() => store.revenueData)
 const userGrowth = computed(() => store.userGrowth)
 const subscriptions = computed(() => store.subscriptions)
 const transactions = computed(() => store.transactions)
+
+const isMobile = ref(window.innerWidth < 768)
+
+const handleResize = () => {
+  isMobile.value = window.innerWidth < 768
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 const revenueChartPoints = computed(() => {
   return revenueData.value.map((item, idx) => ({

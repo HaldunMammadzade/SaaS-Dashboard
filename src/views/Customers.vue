@@ -21,7 +21,6 @@
       </button>
     </div>
 
-    <!-- Stats Overview -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
       <div 
         v-for="(stat, idx) in customerStats" 
@@ -52,7 +51,6 @@
       </div>
     </div>
 
-    <!-- Filters and Search -->
     <div 
       :class="[
         'rounded-xl p-4 sm:p-6 border shadow-sm mb-6',
@@ -110,7 +108,6 @@
       </div>
     </div>
 
-    <!-- Customers Table -->
     <div 
       :class="[
         'rounded-xl border shadow-sm overflow-hidden',
@@ -231,7 +228,6 @@
         </table>
       </div>
 
-      <!-- Pagination -->
       <div 
         :class="[
           'flex flex-col sm:flex-row items-center justify-between px-4 sm:px-6 py-4 border-t gap-4',
@@ -262,10 +258,16 @@
       </div>
     </div>
 
-    <!-- Add Customer Modal -->
     <AddCustomerModal :is-open="showAddModal" @close="showAddModal = false" />
+    
+    <ViewModal 
+      :is-open="showViewModal" 
+      :item="selectedCustomer" 
+      type="customer"
+      title="Customer Details"
+      @close="showViewModal = false" 
+    />
 
-    <!-- Delete Confirmation Modal -->
     <transition name="fade">
       <div 
         v-if="showDeleteModal"
@@ -316,6 +318,7 @@
 import { ref, computed } from 'vue'
 import { useAppStore } from '../stores/app'
 import AddCustomerModal from '../components/AddCustomerModal.vue'
+import ViewModal from '../components/ViewModal.vue'
 import {
   Users as UsersIcon,
   DollarSign as DollarIcon,
@@ -331,7 +334,9 @@ const searchQuery = ref('')
 const filterPlan = ref('all')
 const filterStatus = ref('all')
 const showAddModal = ref(false)
+const showViewModal = ref(false)
 const showDeleteModal = ref(false)
+const selectedCustomer = ref(null)
 const customerToDelete = ref(null)
 
 const customerStats = computed(() => [
@@ -373,7 +378,8 @@ const filteredCustomers = computed(() => {
 })
 
 const viewCustomer = (customer) => {
-  alert(`Viewing customer: ${customer.name}\nEmail: ${customer.email}\nPlan: ${customer.plan}`)
+  selectedCustomer.value = customer
+  showViewModal.value = true
 }
 
 const confirmDelete = (customer) => {

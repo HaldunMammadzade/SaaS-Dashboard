@@ -1,65 +1,65 @@
 <template>
   <div class="analytics">
-    <div class="mb-8">
-      <h1 :class="['text-3xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900']">
+    <div class="mb-6 sm:mb-8">
+      <h1 :class="['text-2xl sm:text-3xl font-bold mb-2', darkMode ? 'text-white' : 'text-gray-900']">
         Analytics & Reports
       </h1>
-      <p :class="['text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
+      <p :class="['text-xs sm:text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
         Detailed insights and performance metrics
       </p>
     </div>
 
     <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
       <div 
         v-for="(metric, idx) in quickMetrics" 
         :key="idx"
         :class="[
-          'rounded-xl p-6 border shadow-sm hover:shadow-lg transition-all duration-300',
+          'rounded-xl p-4 sm:p-6 border shadow-sm hover:shadow-lg transition-all duration-300',
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         ]"
       >
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center justify-between mb-3 sm:mb-4">
           <div 
             :class="[
-              'w-12 h-12 rounded-xl flex items-center justify-center',
+              'w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center',
               metric.bg
             ]"
           >
-            <component :is="metric.icon" class="w-6 h-6 text-white" />
+            <component :is="metric.icon" class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <span :class="['text-xs font-semibold', metric.changeColor]">
             {{ metric.change }}
           </span>
         </div>
-        <h3 :class="['text-2xl font-bold mb-1', darkMode ? 'text-white' : 'text-gray-900']">
+        <h3 :class="['text-lg sm:text-2xl font-bold mb-1', darkMode ? 'text-white' : 'text-gray-900']">
           {{ metric.value }}
         </h3>
-        <p :class="['text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
+        <p :class="['text-xs sm:text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
           {{ metric.label }}
         </p>
       </div>
     </div>
 
     <!-- Revenue vs Expenses -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
       <ChartCard
         title="Revenue vs Expenses"
         subtitle="Comparison over 6 months"
-        height="400px"
+        :height="isMobile ? '250px' : '400px'"
         :show-legend="true"
         :legend-items="[
           { label: 'Revenue', color: '#3b82f6' },
           { label: 'Expenses', color: '#ef4444' }
         ]"
       >
-        <div class="w-full h-full flex items-end justify-center gap-4 px-8">
+        <div class="w-full h-full flex items-end justify-center gap-2 sm:gap-4 px-4 sm:px-8">
           <div 
             v-for="(month, idx) in revenueData" 
             :key="idx"
             class="flex-1 flex flex-col items-center"
           >
-            <div class="w-full flex gap-2 items-end justify-center" style="height: 350px">
+            <div class="w-full flex gap-1 sm:gap-2 items-end justify-center" :style="{ height: isMobile ? '200px' : '350px' }">
               <div 
                 class="w-full rounded-t-lg transition-all duration-500 hover:opacity-80 cursor-pointer relative group"
                 :style="{
@@ -68,7 +68,7 @@
                 }"
               >
                 <div 
-                  class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
+                  class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10"
                 >
                   ${{ month.revenue.toLocaleString() }}
                 </div>
@@ -81,13 +81,13 @@
                 }"
               >
                 <div 
-                  class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
+                  class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10"
                 >
                   ${{ month.expenses.toLocaleString() }}
                 </div>
               </div>
             </div>
-            <span :class="['text-xs mt-3 font-medium', darkMode ? 'text-gray-400' : 'text-gray-600']">
+            <span :class="['text-xs mt-2 sm:mt-3 font-medium', darkMode ? 'text-gray-400' : 'text-gray-600']">
               {{ month.month }}
             </span>
           </div>
@@ -98,9 +98,9 @@
       <ChartCard
         title="Profit Margin Trend"
         subtitle="Monthly profit analysis"
-        height="400px"
+        :height="isMobile ? '250px' : '400px'"
       >
-        <div class="w-full h-full flex items-center justify-center p-8">
+        <div class="w-full h-full flex items-center justify-center p-4 sm:p-8">
           <svg class="w-full h-full" viewBox="0 0 600 350" preserveAspectRatio="xMidYMid meet">
             <defs>
               <linearGradient id="profitGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -173,31 +173,31 @@
     </div>
 
     <!-- Performance Metrics -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
       <div 
         v-for="(performance, idx) in performanceMetrics" 
         :key="idx"
         :class="[
-          'rounded-xl p-6 border shadow-sm',
+          'rounded-xl p-4 sm:p-6 border shadow-sm',
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         ]"
       >
         <div class="flex items-center justify-between mb-4">
-          <h3 :class="['text-lg font-bold', darkMode ? 'text-white' : 'text-gray-900']">
+          <h3 :class="['text-base sm:text-lg font-bold', darkMode ? 'text-white' : 'text-gray-900']">
             {{ performance.title }}
           </h3>
           <component 
             :is="performance.icon" 
-            :class="['w-5 h-5', performance.iconColor]"
+            :class="['w-4 h-4 sm:w-5 sm:h-5', performance.iconColor]"
           />
         </div>
         
-        <div class="mb-6">
+        <div class="mb-4 sm:mb-6">
           <div class="flex items-end gap-2 mb-2">
-            <span :class="['text-3xl font-bold', darkMode ? 'text-white' : 'text-gray-900']">
+            <span :class="['text-2xl sm:text-3xl font-bold', darkMode ? 'text-white' : 'text-gray-900']">
               {{ performance.value }}
             </span>
-            <span :class="['text-sm mb-1', darkMode ? 'text-gray-400' : 'text-gray-600']">
+            <span :class="['text-xs sm:text-sm mb-1', darkMode ? 'text-gray-400' : 'text-gray-600']">
               {{ performance.unit }}
             </span>
           </div>
@@ -205,12 +205,12 @@
             <component 
               :is="performance.trend === 'up' ? TrendingUpIcon : TrendingDownIcon"
               :class="[
-                'w-4 h-4',
+                'w-3 h-3 sm:w-4 sm:h-4',
                 performance.trend === 'up' ? 'text-green-500' : 'text-red-500'
               ]"
             />
             <span :class="[
-              'text-sm font-semibold',
+              'text-xs sm:text-sm font-semibold',
               performance.trend === 'up' ? 'text-green-500' : 'text-red-500'
             ]">
               {{ performance.change }}
@@ -227,10 +227,10 @@
             :key="itemIdx"
           >
             <div class="flex items-center justify-between mb-2">
-              <span :class="['text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
+              <span :class="['text-xs sm:text-sm', darkMode ? 'text-gray-400' : 'text-gray-600']">
                 {{ item.label }}
               </span>
-              <span :class="['text-sm font-semibold', darkMode ? 'text-white' : 'text-gray-900']">
+              <span :class="['text-xs sm:text-sm font-semibold', darkMode ? 'text-white' : 'text-gray-900']">
                 {{ item.value }}%
               </span>
             </div>
@@ -249,99 +249,99 @@
     <!-- Top Products Table -->
     <div 
       :class="[
-        'rounded-xl p-6 border shadow-sm',
+        'rounded-xl p-4 sm:p-6 border shadow-sm',
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
       ]"
     >
-      <div class="flex items-center justify-between mb-6">
-        <h3 :class="['text-lg font-bold', darkMode ? 'text-white' : 'text-gray-900']">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+        <h3 :class="['text-base sm:text-lg font-bold', darkMode ? 'text-white' : 'text-gray-900']">
           Top Performing Products
         </h3>
-        <div class="flex items-center gap-2">
-          <button 
-            :class="[
-              'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-              darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-            ]"
-          >
-            Export
-          </button>
-        </div>
+        <button 
+          :class="[
+            'px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors w-full sm:w-auto',
+            darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+          ]"
+        >
+          Export
+        </button>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr :class="[darkMode ? 'border-gray-700' : 'border-gray-200']" class="border-b">
-              <th :class="['text-left py-3 px-4 text-sm font-semibold', darkMode ? 'text-gray-400' : 'text-gray-600']">
-                Product
-              </th>
-              <th :class="['text-left py-3 px-4 text-sm font-semibold', darkMode ? 'text-gray-400' : 'text-gray-600']">
-                Price
-              </th>
-              <th :class="['text-left py-3 px-4 text-sm font-semibold', darkMode ? 'text-gray-400' : 'text-gray-600']">
-                Sales
-              </th>
-              <th :class="['text-left py-3 px-4 text-sm font-semibold', darkMode ? 'text-gray-400' : 'text-gray-600']">
-                Revenue
-              </th>
-              <th :class="['text-left py-3 px-4 text-sm font-semibold', darkMode ? 'text-gray-400' : 'text-gray-600']">
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr 
-              v-for="product in products" 
-              :key="product.id"
-              :class="[
-                'border-b transition-colors',
-                darkMode ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-100 hover:bg-gray-50'
-              ]"
-            >
-              <td class="py-4 px-4">
-                <div class="flex items-center gap-3">
-                  <div 
-                    class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold"
+      <div class="overflow-x-auto -mx-4 sm:mx-0">
+        <div class="inline-block min-w-full align-middle">
+          <table class="min-w-full">
+            <thead>
+              <tr :class="[darkMode ? 'border-gray-700' : 'border-gray-200']" class="border-b">
+                <th :class="['text-left py-3 px-4 text-xs sm:text-sm font-semibold', darkMode ? 'text-gray-400' : 'text-gray-600']">
+                  Product
+                </th>
+                <th :class="['hidden sm:table-cell text-left py-3 px-4 text-sm font-semibold', darkMode ? 'text-gray-400' : 'text-gray-600']">
+                  Price
+                </th>
+                <th :class="['text-left py-3 px-4 text-xs sm:text-sm font-semibold', darkMode ? 'text-gray-400' : 'text-gray-600']">
+                  Sales
+                </th>
+                <th :class="['text-left py-3 px-4 text-xs sm:text-sm font-semibold', darkMode ? 'text-gray-400' : 'text-gray-600']">
+                  Revenue
+                </th>
+                <th :class="['hidden md:table-cell text-left py-3 px-4 text-sm font-semibold', darkMode ? 'text-gray-400' : 'text-gray-600']">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr 
+                v-for="product in products" 
+                :key="product.id"
+                :class="[
+                  'border-b transition-colors',
+                  darkMode ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-100 hover:bg-gray-50'
+                ]"
+              >
+                <td class="py-3 sm:py-4 px-4">
+                  <div class="flex items-center gap-2 sm:gap-3">
+                    <div 
+                      class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs sm:text-base flex-shrink-0"
+                    >
+                      {{ product.name.charAt(0) }}
+                    </div>
+                    <div class="min-w-0">
+                      <p :class="['font-semibold text-xs sm:text-sm truncate', darkMode ? 'text-white' : 'text-gray-900']">
+                        {{ product.name }}
+                      </p>
+                      <p :class="['text-xs truncate hidden sm:block', darkMode ? 'text-gray-500' : 'text-gray-400']">
+                        {{ product.description }}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td :class="['hidden sm:table-cell py-4 px-4 font-semibold', darkMode ? 'text-white' : 'text-gray-900']">
+                  ${{ product.price }}
+                </td>
+                <td :class="['py-3 sm:py-4 px-4 text-xs sm:text-base', darkMode ? 'text-gray-300' : 'text-gray-700']">
+                  {{ product.sales }}
+                </td>
+                <td :class="['py-3 sm:py-4 px-4 font-bold text-xs sm:text-base', darkMode ? 'text-white' : 'text-gray-900']">
+                  ${{ product.revenue.toLocaleString() }}
+                </td>
+                <td class="hidden md:table-cell py-4 px-4">
+                  <span 
+                    class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                   >
-                    {{ product.name.charAt(0) }}
-                  </div>
-                  <div>
-                    <p :class="['font-semibold text-sm', darkMode ? 'text-white' : 'text-gray-900']">
-                      {{ product.name }}
-                    </p>
-                    <p :class="['text-xs', darkMode ? 'text-gray-500' : 'text-gray-400']">
-                      {{ product.description }}
-                    </p>
-                  </div>
-                </div>
-              </td>
-              <td :class="['py-4 px-4 font-semibold', darkMode ? 'text-white' : 'text-gray-900']">
-                ${{ product.price }}
-              </td>
-              <td :class="['py-4 px-4', darkMode ? 'text-gray-300' : 'text-gray-700']">
-                {{ product.sales }}
-              </td>
-              <td :class="['py-4 px-4 font-bold', darkMode ? 'text-white' : 'text-gray-900']">
-                ${{ product.revenue.toLocaleString() }}
-              </td>
-              <td class="py-4 px-4">
-                <span 
-                  class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                >
-                  {{ product.status }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                    {{ product.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useAppStore } from '../stores/app'
 import ChartCard from '../components/ChartCard.vue'
 import {
@@ -359,6 +359,20 @@ const store = useAppStore()
 const darkMode = computed(() => store.darkMode)
 const revenueData = computed(() => store.revenueData)
 const products = computed(() => store.products)
+
+const isMobile = ref(window.innerWidth < 768)
+
+const handleResize = () => {
+  isMobile.value = window.innerWidth < 768
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 const quickMetrics = [
   {
